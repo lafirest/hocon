@@ -112,7 +112,10 @@ gen(M, Opts) when is_map(M) ->
             true -> "";
             false -> ?NL
         end,
-    [gen_map(M, Opts), NL].
+    [gen_map(M, Opts), NL];
+gen(F, Opts) when is_function(F, 0) ->
+    %% a lazy value, e.g. secret data
+    gen(unwrap(F), Opts).
 
 gen_list(L, Opts) ->
     case is_oneliner(L) of
@@ -246,3 +249,8 @@ esc($\") -> "\\\"";
 % \
 esc($\\) -> "\\\\";
 esc(Char) -> Char.
+
+unwrap(Term) when is_function(Term, 0) ->
+    unwrap(Term());
+unwrap(Term) ->
+    Term.
